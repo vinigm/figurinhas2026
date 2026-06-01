@@ -9,6 +9,7 @@ import { setupTabs } from './tabs.js';
 import { renderMissing, renderDupes, renderStats } from './views.js';
 import { setupExport } from './export.js';
 import { renderAdmin } from './admin.js';
+import { renderTrades } from './trades.js';
 
 let ctx = null; // { user, albumId, email, displayName }
 let started = false;
@@ -52,6 +53,7 @@ function start() {
     if (name === 'faltam') renderMissing(document.getElementById('view-faltam-body'), ctx.displayName);
     else if (name === 'repetidas') renderDupes(document.getElementById('view-repetidas-body'), ctx.displayName);
     else if (name === 'stats') renderStats(document.getElementById('view-stats-body'));
+    else if (name === 'trocas') renderTrades(document.getElementById('view-trocas-body'), { albumId: ctx.albumId, config: ctx.config });
     else if (name === 'admin') renderAdmin(document.getElementById('view-admin-body'), ctx.config, (cfg) => { ctx.config = cfg; });
   });
 

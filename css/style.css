@@ -238,6 +238,21 @@ html.auth-hidden #app { display: none; }
 .admin-row input, .admin-row select { flex: 1 1 140px; min-width: 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; font-size: 14px; font-family: inherit; background: #fff; }
 .admin-row button { flex: 0 0 auto; }
 
+/* ===== Trocas ===== */
+.trade-family { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; margin-bottom: 12px; }
+.trade-family h3 { margin: 0 0 10px; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+.trade-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.trade-col h4 { margin: 0 0 8px; font-size: 13px; }
+.trade-col h4.give { color: #b45309; }
+.trade-col h4.get { color: var(--green); }
+.trade-col h4 span { color: var(--muted); font-weight: 600; }
+.trade-group { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-bottom: 7px; }
+.trade-grp-label { font-size: 11px; font-weight: 700; color: var(--muted); width: 100%; }
+.trade-num { display: inline-flex; min-width: 26px; justify-content: center; padding: 3px 7px; border-radius: 7px; font-size: 12px; font-weight: 700; }
+.trade-num.give { background: var(--gold-soft); border: 1px solid #fcd34d; color: #92400e; }
+.trade-num.get { background: #dcfce7; border: 1px solid #86efac; color: #166534; }
+@media (max-width: 480px) { .trade-cols { grid-template-columns: 1fr; gap: 8px; } }
+
 /* ===== Telas maiores ===== */
 @media (min-width: 640px) {
   .stat-cards { grid-template-columns: repeat(4, 1fr); }
