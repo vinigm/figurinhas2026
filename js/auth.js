@@ -7,15 +7,27 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js';
 import { auth, googleProvider } from './firebase-config.js';
 
-// 👇 Adicione aqui os e-mails dos amigos que poderão usar o app.
-export const AUTHORIZED_EMAILS = [
-  'vinigm@gmail.com',
-  'victoria.cerutti@gmail.com',
-  // 'amigo@gmail.com',
-];
+// Cada "álbum" é compartilhado pelos e-mails da lista (um casal/família).
+// Quem está na mesma lista vê e edita o MESMO álbum. Para liberar uma família
+// nova, crie uma entrada aqui (e replique a mesma lista nas firestore.rules).
+export const ALBUMS = {
+  'vini-vivi': ['vinigm@gmail.com', 'victoria.cerutti@gmail.com'],
+  // 'eduardo': ['eduardo@gmail.com', 'esposa@gmail.com', 'filha1@gmail.com', 'filha2@gmail.com'],
+  // 'jamaico': ['jamaico@gmail.com', 'esposa@gmail.com', 'filho1@gmail.com', 'filho2@gmail.com', 'filho3@gmail.com'],
+  // 'natalia': ['natalia@gmail.com', 'marido@gmail.com', 'filho1@gmail.com', 'filho2@gmail.com'],
+};
+
+// Descobre qual álbum o e-mail pode acessar (ou null se não autorizado).
+export function albumIdForEmail(email) {
+  const e = (email || '').toLowerCase();
+  for (const [albumId, members] of Object.entries(ALBUMS)) {
+    if (members.some((m) => m.toLowerCase() === e)) return albumId;
+  }
+  return null;
+}
 
 function isAuthorized(email) {
-  return AUTHORIZED_EMAILS.includes((email || '').toLowerCase());
+  return albumIdForEmail(email) !== null;
 }
 
 export function setupAuthGate({ onAuthorized, onUnauthorized }) {
@@ -82,7 +94,7 @@ export function setupAuthGate({ onAuthorized, onUnauthorized }) {
     hideGate();
     onAuthorized?.({
       user,
-      userId: user.uid,
+      albumId: albumIdForEmail(email),
       email,
       displayName: user.displayName || email.split('@')[0],
       photoURL: user.photoURL || '',

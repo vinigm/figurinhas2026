@@ -1,7 +1,7 @@
 // Service worker — cache do "app shell" (funciona offline depois da 1ª visita).
 // Caminhos relativos pra funcionar no subdiretório do GitHub Pages.
 
-const CACHE = 'figurinhas-v5';
+const CACHE = 'figurinhas-v6';
 const SHELL = [
   './',
   './index.html',

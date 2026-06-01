@@ -1,25 +1,25 @@
 rules_version = '2';
 
-// Cada usuário tem 1 documento em /albums/{uid}, onde uid é o UID do Firebase Auth.
-// - Qualquer e-mail da whitelist pode LER qualquer álbum (habilita comparar
-//   repetidas entre amigos — Fase 2).
-// - Mas só pode ESCREVER no próprio documento (uid == documento).
-//
-// Mantenha esta lista de e-mails igual à de js/auth.js (AUTHORIZED_EMAILS).
+// Álbuns compartilhados por família: /albums/{albumId}, onde albumId é o id da
+// família (ex: 'vini-vivi') e os membros são listados em albumMembers().
+// Cada membro lê e escreve no álbum da sua família; ninguém acessa o de outra.
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isWhitelisted() {
-      return request.auth != null
-        && request.auth.token.email.lower() in [
-          'vinigm@gmail.com',
-          'victoria.cerutti@gmail.com'
-          // , 'amigo@gmail.com'
-        ];
+    // Mantenha igual ao ALBUMS de js/auth.js. Cada álbum é compartilhado pela família.
+    function albumMembers() {
+      return {
+        'vini-vivi': ['vinigm@gmail.com', 'victoria.cerutti@gmail.com']
+        // , 'eduardo': ['eduardo@gmail.com', 'esposa@gmail.com', 'filha1@gmail.com', 'filha2@gmail.com']
+      };
     }
 
-    match /albums/{uid} {
-      allow read: if isWhitelisted();
-      allow write: if isWhitelisted() && request.auth.uid == uid;
+    match /albums/{albumId} {
+      // Membros do álbum (família) leem e escrevem nele.
+      allow read, write: if request.auth != null
+        && albumId in albumMembers()
+        && request.auth.token.email.lower() in albumMembers()[albumId];
+      // Transitório (migração): cada um pode LER seu antigo álbum pessoal (id = uid).
+      allow read: if request.auth != null && albumId == request.auth.uid;
     }
   }
 }

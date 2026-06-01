@@ -9,7 +9,7 @@ import { setupTabs } from './tabs.js';
 import { renderMissing, renderDupes, renderStats } from './views.js';
 import { setupExport } from './export.js';
 
-let ctx = null; // { user, userId, email, displayName }
+let ctx = null; // { user, albumId, email, displayName }
 let started = false;
 
 function start() {
@@ -21,7 +21,7 @@ function start() {
   if (who) who.textContent = ctx.displayName;
 
   // 1) Pinta com o cache local (instantâneo).
-  initCounts(readLocal(ctx.userId));
+  initCounts(readLocal(ctx.albumId));
   renderIndex(document.getElementById('index'));
   renderAlbum(document.getElementById('album'));
 
@@ -29,8 +29,8 @@ function start() {
   subscribe((id) => {
     const count = getCount(id);
     refreshSticker(id);
-    saveLocal(ctx.userId, allCounts());
-    queueRemote(ctx.userId, { email: ctx.email, displayName: ctx.displayName }, id, count);
+    saveLocal(ctx.albumId, allCounts());
+    queueRemote(ctx.albumId, { email: ctx.email, displayName: ctx.displayName }, id, count);
   });
 
   // 3) Interações nas bolinhas (toque = +1, segurar 3s = -1).
@@ -49,12 +49,25 @@ function start() {
   setupExport({ displayName: ctx.displayName });
 
   // 5) Reconcilia com o Firestore (fonte da verdade quando online).
-  loadRemote(ctx.userId).then((res) => {
-    if (res.ok) {
-      initCounts(res.counts);
-      saveLocal(ctx.userId, allCounts());
-      refreshAll();
+  // Carrega o álbum (compartilhado). Se estiver vazio, migra UMA vez do álbum
+  // pessoal antigo (id = uid), pra não perder o que já foi marcado.
+  loadRemote(ctx.albumId).then(async (res) => {
+    if (!res.ok) return;
+    let counts = res.counts;
+    if (Object.keys(counts).length === 0 && ctx.user?.uid) {
+      const old = await loadRemote(ctx.user.uid);
+      if (old.ok && Object.keys(old.counts).length > 0) {
+        counts = old.counts;
+        for (const [id, c] of Object.entries(counts)) {
+          queueRemote(ctx.albumId, { email: ctx.email, displayName: ctx.displayName }, id, c);
+        }
+        flushNow();
+        console.log('[Figurinhas] migradas', Object.keys(counts).length, 'figurinhas do álbum pessoal para o compartilhado');
+      }
     }
+    initCounts(counts);
+    saveLocal(ctx.albumId, allCounts());
+    refreshAll();
   });
 
   // Garante o envio de mudanças pendentes ao fechar/ocultar a página.
