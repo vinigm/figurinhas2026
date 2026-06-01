@@ -73,9 +73,9 @@ function buildReport(mode, displayName) {
   if (mode === 'faltam') body = listHtml((c) => c === 0, false);
   else if (mode === 'repetidas') body = listHtml((c) => c >= 2, true);
   else if (mode === 'troca') body = `
-    <h2 class="section-banner need">🙋 Essas eu preciso</h2>
+    <h2 class="section-banner need">🙋 Preciso de: ${TOTAL - ownedCount()}</h2>
     ${listHtml((c) => c === 0, false)}
-    <h2 class="section-banner trade">🔁 Essas eu tenho pra trocar</h2>
+    <h2 class="section-banner trade">🔁 Tenho pra trocar: ${dupesCount()}</h2>
     ${listHtml((c) => c >= 2, true)}`;
   else body = fullHtml();
 
@@ -112,9 +112,9 @@ function buildReport(mode, displayName) {
   @media print { body { margin: 12mm; } .print-btn { display: none; } }
 </style></head><body>
 <button class="print-btn" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
-<h1>${esc(headings[mode])}</h1>
+${mode === 'troca' ? '' : `<h1>${esc(headings[mode])}</h1>
 <div class="sub">${esc(displayName)} · Copa 2026 · gerado em ${todayBR()}</div>
-${summaryHtml()}
+${summaryHtml()}`}
 ${mode === 'completo' ? `<div class="legend">
   <span><b style="color:#5b21b6">●</b> tenho</span>
   <span><b style="color:#92400e">●</b> repetida (nº = extras)</span>
