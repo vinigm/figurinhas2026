@@ -62,6 +62,12 @@ function listHtml(predicate, withExtra) {
 
 function buildReport(mode, displayName) {
   const titles = { completo: 'Álbum completo', faltam: 'Figurinhas que faltam', repetidas: 'Figurinhas repetidas' };
+  // Cabeçalho visível (h1) — separado do título do arquivo/aba.
+  const headings = {
+    completo: '⚽ Álbum completo',
+    faltam: '🙋 Se você tiver essas figurinhas EU QUERO!',
+    repetidas: '🔁 Essas aqui são minhas figurinhas repetidas que eu posso trocar com vc!',
+  };
   let body;
   if (mode === 'faltam') body = listHtml((c) => c === 0, false);
   else if (mode === 'repetidas') body = listHtml((c) => c >= 2, true);
@@ -97,7 +103,7 @@ function buildReport(mode, displayName) {
   @media print { body { margin: 12mm; } .print-btn { display: none; } }
 </style></head><body>
 <button class="print-btn" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
-<h1>⚽ ${esc(titles[mode])}</h1>
+<h1>${esc(headings[mode])}</h1>
 <div class="sub">${esc(displayName)} · Copa 2026 · gerado em ${todayBR()}</div>
 ${summaryHtml()}
 ${mode === 'completo' ? `<div class="legend">
