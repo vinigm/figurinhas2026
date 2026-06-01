@@ -1,0 +1,14 @@
+{
+  "name": "Figurinhas Copa 2026",
+  "short_name": "Figurinhas26",
+  "description": "Controle do álbum de figurinhas da Copa do Mundo 2026.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#4c1d95",
+  "theme_color": "#6d28d9",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="pt-BR" class="auth-hidden">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+  <meta name="theme-color" content="#6d28d9" />
+  <title>Figurinhas Copa 2026</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icons/icon.svg" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- Porteiro de login -->
+  <div id="auth-gate" class="auth-gate">
+    <div class="gate-card">
+      <div class="gate-logo">⚽</div>
+      <h1>Figurinhas<br>Copa 2026</h1>
+      <p>Controle seu álbum, veja o que falta e suas repetidas.</p>
+      <button id="btn-login" class="btn-google">
+        <span>G</span> Entrar com Google
+      </button>
+      <p id="auth-error" class="auth-error" hidden></p>
+    </div>
+  </div>
+
+  <!-- App -->
+  <div id="app" hidden>
+    <header class="topbar">
+      <div class="topbar-row">
+        <div class="brand">⚽ <strong>Copa 2026</strong></div>
+        <div class="user">
+          <span id="who" class="who"></span>
+          <button id="btn-logout" class="btn-logout" title="Sair">Sair</button>
+        </div>
+      </div>
+      <div class="global-progress">
+        <div class="bar"><i id="global-bar-fill"></i></div>
+        <span id="global-progress-label" class="global-label">0 / 980 · 0%</span>
+      </div>
+    </header>
+
+    <nav class="tabs" role="tablist">
+      <button class="tab" data-tab="todas" role="tab">🗂️ Todas</button>
+      <button class="tab" data-tab="faltam" role="tab">🔍 Me faltam</button>
+      <button class="tab" data-tab="repetidas" role="tab">🔁 Repetidas</button>
+      <button class="tab" data-tab="stats" role="tab">📊 Stats</button>
+      <button class="tab" data-tab="exportar" role="tab">📄 Exportar</button>
+    </nav>
+
+    <main id="main" class="main">
+      <!-- Todas -->
+      <section class="view" data-view="todas">
+        <div class="hint-bar">
+          Toque pra marcar · toque de novo conta repetidas · <b>segure 3s</b> pra desfazer.
+        </div>
+        <div id="index" class="index"></div>
+        <div id="album" class="album"></div>
+      </section>
+
+      <!-- Me faltam -->
+      <section class="view" data-view="faltam" hidden>
+        <div id="view-faltam-body"></div>
+      </section>
+
+      <!-- Repetidas -->
+      <section class="view" data-view="repetidas" hidden>
+        <div id="view-repetidas-body"></div>
+      </section>
+
+      <!-- Estatísticas -->
+      <section class="view" data-view="stats" hidden>
+        <div id="view-stats-body"></div>
+      </section>
+
+      <!-- Exportar -->
+      <section class="view" data-view="exportar" hidden>
+        <div class="view-head"><h2>Exportar PDF</h2></div>
+        <p class="hint">Gera uma página pronta pra imprimir ou salvar como PDF.</p>
+        <div class="export-options">
+          <button class="export-card" data-export="completo">
+            <span class="export-ico">📔</span><span>Álbum completo</span>
+            <small>Tudo, com o que tenho, falta e repetidas</small>
+          </button>
+          <button class="export-card" data-export="faltam">
+            <span class="export-ico">🔍</span><span>Só o que falta</span>
+            <small>Lista pra levar na banca</small>
+          </button>
+          <button class="export-card" data-export="repetidas">
+            <span class="export-ico">🔁</span><span>Só repetidas</span>
+            <small>Lista pra trocar com amigos</small>
+          </button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

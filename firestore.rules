@@ -1,0 +1,24 @@
+rules_version = '2';
+
+// Cada usuário tem 1 documento em /albums/{uid}, onde uid é o UID do Firebase Auth.
+// - Qualquer e-mail da whitelist pode LER qualquer álbum (habilita comparar
+//   repetidas entre amigos — Fase 2).
+// - Mas só pode ESCREVER no próprio documento (uid == documento).
+//
+// Mantenha esta lista de e-mails igual à de js/auth.js (AUTHORIZED_EMAILS).
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isWhitelisted() {
+      return request.auth != null
+        && request.auth.token.email.lower() in [
+          'vinigm@gmail.com'
+          // , 'amigo@gmail.com'
+        ];
+    }
+
+    match /albums/{uid} {
+      allow read: if isWhitelisted();
+      allow write: if isWhitelisted() && request.auth.uid == uid;
+    }
+  }
+}
