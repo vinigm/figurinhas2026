@@ -2,8 +2,6 @@
 
 import {
   signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
   onAuthStateChanged,
   signOut,
 } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js';
@@ -46,18 +44,20 @@ export function setupAuthGate({ onAuthorized, onUnauthorized }) {
   btnLogin?.addEventListener('click', async () => {
     if (errEl) errEl.hidden = true;
     try {
+      // Sempre popup. O signInWithRedirect quebra em navegadores com "storage
+      // partitioning" (Safari/iOS) — dá "missing initial state" — porque o
+      // authDomain do Firebase (...firebaseapp.com) é um domínio diferente do app.
+      // O popup, acionado pelo toque, funciona nesses navegadores.
       await signInWithPopup(auth, googleProvider);
     } catch (e) {
-      if (
-        e.code === 'auth/popup-blocked' ||
-        e.code === 'auth/cancelled-popup-request' ||
-        e.code === 'auth/operation-not-supported-in-this-environment'
-      ) {
-        await signInWithRedirect(auth, googleProvider);
-      } else if (errEl) {
-        errEl.textContent = 'Erro ao entrar: ' + (e.message || e.code);
-        errEl.hidden = false;
-      }
+      const code = e?.code || '';
+      // Usuário fechou/cancelou: não mostra erro.
+      if (code === 'auth/cancelled-popup-request' || code === 'auth/popup-closed-by-user') return;
+      const msg = code === 'auth/popup-blocked'
+        ? 'O navegador bloqueou a janelinha de login. Permita pop-ups deste site e toque de novo.'
+        : 'Não consegui entrar. Abra o site direto no Safari ou Chrome (não pelo navegador dentro de outro app, tipo WhatsApp) e tente de novo.';
+      if (errEl) { errEl.textContent = msg; errEl.hidden = false; }
+      console.error('[Figurinhas] login erro', code, e?.message || e);
     }
   });
 
@@ -65,9 +65,6 @@ export function setupAuthGate({ onAuthorized, onUnauthorized }) {
     await signOut(auth);
     location.reload();
   });
-
-  // Trata o retorno do fluxo de redirect (quando o popup é bloqueado).
-  getRedirectResult(auth).catch((e) => console.error('[Figurinhas] redirect erro', e));
 
   onAuthStateChanged(auth, (user) => {
     if (!user) {
