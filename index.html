@@ -48,6 +48,7 @@
       <button class="tab" data-tab="repetidas" role="tab">🔁 Repetidas</button>
       <button class="tab" data-tab="stats" role="tab">📊 Stats</button>
       <button class="tab" data-tab="exportar" role="tab">📄 Exportar</button>
+      <button class="tab" data-tab="admin" role="tab" id="tab-admin" hidden>👑 Admin</button>
     </nav>
 
     <main id="main" class="main">
@@ -97,6 +98,11 @@
             <small>O que preciso + o que tenho, numa página só</small>
           </button>
         </div>
+      </section>
+
+      <!-- Admin (aparece só pro admin) -->
+      <section class="view" data-view="admin" hidden>
+        <div id="view-admin-body"></div>
       </section>
     </main>
   </div>

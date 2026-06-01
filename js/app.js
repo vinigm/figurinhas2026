@@ -8,6 +8,7 @@ import { setupInteractions } from './interactions.js';
 import { setupTabs } from './tabs.js';
 import { renderMissing, renderDupes, renderStats } from './views.js';
 import { setupExport } from './export.js';
+import { renderAdmin } from './admin.js';
 
 let ctx = null; // { user, albumId, email, displayName }
 let started = false;
@@ -20,6 +21,12 @@ function start() {
   const who = document.getElementById('who');
   if (who) who.textContent = ctx.displayName;
 
+  // A aba de Admin só aparece pro admin.
+  if (ctx.isAdmin) {
+    const adminTab = document.getElementById('tab-admin');
+    if (adminTab) adminTab.hidden = false;
+  }
+
   // 1) Pinta com o cache local (instantâneo).
   initCounts(readLocal(ctx.albumId));
   renderIndex(document.getElementById('index'));
@@ -29,6 +36,7 @@ function start() {
   subscribe((id) => {
     const count = getCount(id);
     refreshSticker(id);
+    if (!ctx.albumId) return; // admin ainda sem família: não grava álbum
     saveLocal(ctx.albumId, allCounts());
     queueRemote(ctx.albumId, { email: ctx.email, displayName: ctx.displayName }, id, count);
   });
@@ -44,6 +52,7 @@ function start() {
     if (name === 'faltam') renderMissing(document.getElementById('view-faltam-body'), ctx.displayName);
     else if (name === 'repetidas') renderDupes(document.getElementById('view-repetidas-body'), ctx.displayName);
     else if (name === 'stats') renderStats(document.getElementById('view-stats-body'));
+    else if (name === 'admin') renderAdmin(document.getElementById('view-admin-body'), ctx.config, (cfg) => { ctx.config = cfg; });
   });
 
   setupExport({ displayName: ctx.displayName });
@@ -51,7 +60,7 @@ function start() {
   // 5) Reconcilia com o Firestore (fonte da verdade quando online).
   // Carrega o álbum (compartilhado). Se estiver vazio, migra UMA vez do álbum
   // pessoal antigo (id = uid), pra não perder o que já foi marcado.
-  loadRemote(ctx.albumId).then(async (res) => {
+  if (ctx.albumId) loadRemote(ctx.albumId).then(async (res) => {
     if (!res.ok) return;
     let counts = res.counts;
     if (Object.keys(counts).length === 0 && ctx.user?.uid) {

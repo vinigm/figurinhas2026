@@ -1,24 +1,41 @@
 rules_version = '2';
 
-// Álbuns compartilhados por família: /albums/{albumId}, onde albumId é o id da
-// família (ex: 'vini-vivi') e os membros são listados em albumMembers().
-// Cada membro lê e escreve no álbum da sua família; ninguém acessa o de outra.
+// Cadastro guiado por dados em /config/app:
+//   members:  { 'email': 'albumId' }   → quem pode usar e qual álbum cada um edita
+//   families: { 'albumId': 'Nome' }    → nomes das famílias (rótulos)
+// Regras:
+//   - Qualquer pessoa CADASTRADA lê todos os álbuns (pra trocas).
+//   - Cada um só ESCREVE no álbum da sua família.
+//   - Só o admin (vinigm@gmail.com) edita o cadastro.
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Mantenha igual ao ALBUMS de js/auth.js. Cada álbum é compartilhado pela família.
-    function albumMembers() {
-      return {
-        'vini-vivi': ['vinigm@gmail.com', 'victoria.cerutti@gmail.com']
-        // , 'eduardo': ['eduardo@gmail.com', 'esposa@gmail.com', 'filha1@gmail.com', 'filha2@gmail.com']
-      };
+    function emailLower() {
+      return request.auth != null ? request.auth.token.email.lower() : '';
+    }
+    function isAdmin() {
+      return emailLower() == 'vinigm@gmail.com';
+    }
+    function cfg() {
+      return get(/databases/$(database)/documents/config/app).data;
+    }
+    function isMember() {
+      return request.auth != null && emailLower() in cfg().members;
+    }
+    function myAlbum() {
+      return cfg().members[emailLower()];
     }
 
+    // Cadastro: cadastrados (e o admin) leem; só o admin escreve.
+    match /config/app {
+      allow read: if isAdmin() || isMember();
+      allow write: if isAdmin();
+    }
+
+    // Álbuns: todo cadastrado lê qualquer um; cada um escreve só no da sua família.
     match /albums/{albumId} {
-      // Membros do álbum (família) leem e escrevem nele.
-      allow read, write: if request.auth != null
-        && albumId in albumMembers()
-        && request.auth.token.email.lower() in albumMembers()[albumId];
-      // Transitório (migração): cada um pode LER seu antigo álbum pessoal (id = uid).
+      allow read: if isMember();
+      allow write: if isMember() && myAlbum() == albumId;
+      // Transitório (migração antiga): ler o próprio álbum pessoal por uid.
       allow read: if request.auth != null && albumId == request.auth.uid;
     }
   }

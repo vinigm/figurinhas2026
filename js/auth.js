@@ -1,4 +1,4 @@
-// Login com Google + porteiro (gate) com whitelist de e-mails.
+// Login com Google + autorização pelo cadastro (config/app no Firestore).
 
 import {
   signInWithPopup,
@@ -6,29 +6,10 @@ import {
   signOut,
 } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js';
 import { auth, googleProvider } from './firebase-config.js';
+import { loadConfig, seedConfigIfMissing } from './config.js';
 
-// Cada "álbum" é compartilhado pelos e-mails da lista (um casal/família).
-// Quem está na mesma lista vê e edita o MESMO álbum. Para liberar uma família
-// nova, crie uma entrada aqui (e replique a mesma lista nas firestore.rules).
-export const ALBUMS = {
-  'vini-vivi': ['vinigm@gmail.com', 'victoria.cerutti@gmail.com'],
-  // 'eduardo': ['eduardo@gmail.com', 'esposa@gmail.com', 'filha1@gmail.com', 'filha2@gmail.com'],
-  // 'jamaico': ['jamaico@gmail.com', 'esposa@gmail.com', 'filho1@gmail.com', 'filho2@gmail.com', 'filho3@gmail.com'],
-  // 'natalia': ['natalia@gmail.com', 'marido@gmail.com', 'filho1@gmail.com', 'filho2@gmail.com'],
-};
-
-// Descobre qual álbum o e-mail pode acessar (ou null se não autorizado).
-export function albumIdForEmail(email) {
-  const e = (email || '').toLowerCase();
-  for (const [albumId, members] of Object.entries(ALBUMS)) {
-    if (members.some((m) => m.toLowerCase() === e)) return albumId;
-  }
-  return null;
-}
-
-function isAuthorized(email) {
-  return albumIdForEmail(email) !== null;
-}
+// Único e-mail fixo: o admin que gerencia o cadastro (cria famílias, adiciona gente).
+export const ADMIN_EMAIL = 'vinigm@gmail.com';
 
 export function setupAuthGate({ onAuthorized, onUnauthorized }) {
   const gate = document.getElementById('auth-gate');
@@ -37,16 +18,14 @@ export function setupAuthGate({ onAuthorized, onUnauthorized }) {
   const errEl = document.getElementById('auth-error');
   const app = document.getElementById('app');
 
-  function showGate(errorMsg) {
+  function showGate(msg) {
     document.documentElement.classList.add('auth-hidden');
     if (gate) gate.hidden = false;
     if (app) app.hidden = true;
     if (errEl) {
-      if (errorMsg) { errEl.textContent = errorMsg; errEl.hidden = false; }
-      else errEl.hidden = true;
+      if (msg) { errEl.textContent = msg; errEl.hidden = false; } else errEl.hidden = true;
     }
   }
-
   function hideGate() {
     document.documentElement.classList.remove('auth-hidden');
     if (gate) gate.hidden = true;
@@ -56,18 +35,14 @@ export function setupAuthGate({ onAuthorized, onUnauthorized }) {
   btnLogin?.addEventListener('click', async () => {
     if (errEl) errEl.hidden = true;
     try {
-      // Sempre popup. O signInWithRedirect quebra em navegadores com "storage
-      // partitioning" (Safari/iOS) — dá "missing initial state" — porque o
-      // authDomain do Firebase (...firebaseapp.com) é um domínio diferente do app.
-      // O popup, acionado pelo toque, funciona nesses navegadores.
+      // Só popup: signInWithRedirect quebra no Safari/iOS (storage partitioning).
       await signInWithPopup(auth, googleProvider);
     } catch (e) {
       const code = e?.code || '';
-      // Usuário fechou/cancelou: não mostra erro.
       if (code === 'auth/cancelled-popup-request' || code === 'auth/popup-closed-by-user') return;
       const msg = code === 'auth/popup-blocked'
         ? 'O navegador bloqueou a janelinha de login. Permita pop-ups deste site e toque de novo.'
-        : 'Não consegui entrar. Abra o site direto no Safari ou Chrome (não pelo navegador dentro de outro app, tipo WhatsApp) e tente de novo.';
+        : 'Não consegui entrar. Abra o site direto no Safari/Chrome (não pelo navegador dentro de outro app) e tente de novo.';
       if (errEl) { errEl.textContent = msg; errEl.hidden = false; }
       console.error('[Figurinhas] login erro', code, e?.message || e);
     }
@@ -78,24 +53,32 @@ export function setupAuthGate({ onAuthorized, onUnauthorized }) {
     location.reload();
   });
 
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      showGate();
-      onUnauthorized?.();
-      return;
-    }
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { showGate(); onUnauthorized?.(); return; }
     const email = (user.email || '').toLowerCase();
-    if (!isAuthorized(email)) {
-      showGate('E-mail não autorizado: ' + email + '. Peça pro Vini liberar seu acesso.');
-      signOut(auth);
+    const isAdmin = email === ADMIN_EMAIL;
+
+    // O admin garante que o cadastro exista (cria na 1ª vez); os demais só leem.
+    let config = null;
+    try {
+      config = isAdmin ? await seedConfigIfMissing() : await loadConfig();
+    } catch (e) {
+      console.error('[Figurinhas] erro ao carregar cadastro:', e?.message || e);
+    }
+
+    const albumId = (config && config.members && config.members[email]) || null;
+
+    // Não cadastrado (e não é o admin) → barra.
+    if (!albumId && !isAdmin) {
+      showGate('Você ainda não foi cadastrado no app. Peça pro Vini te adicionar. 🙂');
+      await signOut(auth);
       onUnauthorized?.();
       return;
     }
+
     hideGate();
     onAuthorized?.({
-      user,
-      albumId: albumIdForEmail(email),
-      email,
+      user, email, albumId, isAdmin, config,
       displayName: user.displayName || email.split('@')[0],
       photoURL: user.photoURL || '',
     });

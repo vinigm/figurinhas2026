@@ -224,6 +224,20 @@ html.auth-hidden #app { display: none; }
 .report-print { background: #fff; color: var(--accent); margin-left: auto; }
 .report-frame { flex: 1 1 auto; width: 100%; border: 0; background: #fff; }
 
+/* ===== Admin ===== */
+.admin-family { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; margin-bottom: 10px; }
+.admin-family-head { font-size: 15px; margin-bottom: 8px; }
+.admin-id { font-size: 11px; color: var(--muted); background: var(--accent-soft); padding: 1px 7px; border-radius: 8px; margin-left: 4px; }
+.admin-members { display: flex; flex-wrap: wrap; gap: 6px; }
+.admin-chip { display: inline-flex; align-items: center; gap: 6px; background: #f4f2fd; border: 1px solid var(--line); border-radius: 16px; padding: 4px 6px 4px 10px; font-size: 12.5px; }
+.admin-chip button { border: 0; background: var(--red); color: #fff; width: 18px; height: 18px; border-radius: 50%; cursor: pointer; font-size: 12px; line-height: 1; padding: 0; }
+.admin-tag { font-style: normal; font-size: 10px; color: var(--accent); background: var(--accent-soft); padding: 1px 6px; border-radius: 8px; text-transform: uppercase; letter-spacing: .03em; }
+.admin-box { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-top: 12px; }
+.admin-box h3 { margin: 0 0 10px; font-size: 14px; }
+.admin-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.admin-row input, .admin-row select { flex: 1 1 140px; min-width: 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; font-size: 14px; font-family: inherit; background: #fff; }
+.admin-row button { flex: 0 0 auto; }
+
 /* ===== Telas maiores ===== */
 @media (min-width: 640px) {
   .stat-cards { grid-template-columns: repeat(4, 1fr); }
