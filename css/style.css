@@ -215,6 +215,15 @@ html.auth-hidden #app { display: none; }
 .export-card > span:nth-child(2) { font-weight: 800; font-size: 16px; }
 .export-card small { color: var(--muted); font-size: 12.5px; }
 
+/* Camada do relatório (abre dentro do app, com botão Voltar — não trava no PWA) */
+.report-overlay { position: fixed; inset: 0; z-index: 1000; background: #fff; display: flex; flex-direction: column; }
+.report-toolbar { flex: 0 0 auto; display: flex; gap: 10px; align-items: center;
+  padding: calc(env(safe-area-inset-top) + 10px) 14px 10px; background: var(--accent); }
+.report-toolbar button { border: 0; border-radius: 10px; padding: 10px 14px; font-weight: 700; font-size: 14px; cursor: pointer; }
+.report-close { background: rgba(255, 255, 255, .2); color: #fff; }
+.report-print { background: #fff; color: var(--accent); margin-left: auto; }
+.report-frame { flex: 1 1 auto; width: 100%; border: 0; background: #fff; }
+
 /* ===== Telas maiores ===== */
 @media (min-width: 640px) {
   .stat-cards { grid-template-columns: repeat(4, 1fr); }

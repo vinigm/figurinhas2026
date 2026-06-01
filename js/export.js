@@ -111,7 +111,6 @@ function buildReport(mode, displayName) {
                padding: 10px 16px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 14px; }
   @media print { body { margin: 12mm; } .print-btn { display: none; } }
 </style></head><body>
-<button class="print-btn" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
 ${mode === 'troca' ? '' : `<h1>${esc(headings[mode])}</h1>
 <div class="sub">${esc(displayName)} · Copa 2026 · gerado em ${todayBR()}</div>
 ${summaryHtml()}`}
@@ -126,15 +125,40 @@ ${body}
 export function setupExport({ displayName }) {
   document.querySelectorAll('[data-export]').forEach((btn) => {
     btn.addEventListener('click', () => {
-      const html = buildReport(btn.dataset.export, displayName);
-      const w = window.open('', '_blank');
-      if (!w) {
-        alert('O navegador bloqueou a janela. Permita pop-ups deste site para gerar o PDF.');
-        return;
-      }
-      w.document.open();
-      w.document.write(html);
-      w.document.close();
+      openReportOverlay(buildReport(btn.dataset.export, displayName));
     });
   });
+}
+
+// Mostra o relatório como uma camada DENTRO do app (com botão Voltar), em vez de
+// abrir uma aba nova — assim não trava quando o app está instalado na tela inicial.
+function openReportOverlay(html) {
+  document.getElementById('report-overlay')?.remove();
+  const ov = document.createElement('div');
+  ov.id = 'report-overlay';
+  ov.className = 'report-overlay';
+  ov.innerHTML = `
+    <div class="report-toolbar">
+      <button class="report-close" type="button">✕ Voltar</button>
+      <button class="report-print" type="button">🖨️ Imprimir / Salvar PDF</button>
+    </div>
+    <iframe class="report-frame" title="Relatório"></iframe>`;
+  document.body.appendChild(ov);
+
+  const frame = ov.querySelector('.report-frame');
+  const doc = frame.contentDocument || frame.contentWindow.document;
+  doc.open(); doc.write(html); doc.close();
+
+  const close = () => {
+    ov.remove();
+    document.removeEventListener('keydown', onKey);
+  };
+  function onKey(e) { if (e.key === 'Escape') close(); }
+
+  ov.querySelector('.report-close').addEventListener('click', close);
+  ov.querySelector('.report-print').addEventListener('click', () => {
+    try { frame.contentWindow.focus(); frame.contentWindow.print(); }
+    catch (_) { window.print(); }
+  });
+  document.addEventListener('keydown', onKey);
 }
