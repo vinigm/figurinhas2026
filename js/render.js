@@ -115,6 +115,37 @@ export function refreshAll() {
   updateGlobalProgress();
 }
 
+// Mostra um conjunto arbitrário de counts (modo "ver álbum de outra família",
+// só leitura). NÃO mexe no estado — só atualiza o visual do grid e o progresso.
+export function displayCounts(counts) {
+  const get = (id) => counts[id] || 0;
+  let ownedG = 0;
+  for (const t of ALBUM) {
+    let owned = 0;
+    for (const s of t.stickers) {
+      const el = stickerEls.get(s.id);
+      const c = get(s.id);
+      if (el) applyVisual(el, c);
+      if (c >= 1) owned++;
+    }
+    ownedG += owned;
+    const rec = topicEls.get(t.id);
+    if (rec) {
+      const pct = Math.round((owned / t.stickers.length) * 100);
+      if (rec.frac) rec.frac.textContent = `${owned}/${t.stickers.length}`;
+      if (rec.barFill) rec.barFill.style.width = pct + '%';
+      const done = owned === t.stickers.length;
+      if (rec.section) rec.section.classList.toggle('done', done);
+      if (rec.chip) rec.chip.classList.toggle('done', done);
+    }
+  }
+  const pctG = Math.round((ownedG / TOTAL) * 100);
+  const fill = document.getElementById('global-bar-fill');
+  const label = document.getElementById('global-progress-label');
+  if (fill) fill.style.width = pctG + '%';
+  if (label) label.textContent = `${ownedG} / ${TOTAL} · ${pctG}%`;
+}
+
 export function updateTopicProgress(topicId) {
   const t = ALBUM.find((x) => x.id === topicId);
   const rec = topicEls.get(topicId);

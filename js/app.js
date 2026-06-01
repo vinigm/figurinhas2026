@@ -3,7 +3,7 @@
 import { setupAuthGate } from './auth.js';
 import { initCounts, tap, longPress, subscribe, allCounts, getCount } from './state.js';
 import { readLocal, saveLocal, loadRemote, queueRemote, flushNow } from './storage.js';
-import { renderIndex, renderAlbum, refreshSticker, refreshAll } from './render.js';
+import { renderIndex, renderAlbum, refreshSticker, refreshAll, displayCounts } from './render.js';
 import { setupInteractions } from './interactions.js';
 import { setupTabs } from './tabs.js';
 import { renderMissing, renderDupes, renderStats } from './views.js';
@@ -11,8 +11,15 @@ import { setupExport } from './export.js';
 import { renderAdmin } from './admin.js';
 import { renderTrades } from './trades.js';
 
-let ctx = null; // { user, albumId, email, displayName }
+let ctx = null; // { user, albumId, email, displayName, isAdmin, config }
 let started = false;
+let readOnly = false; // true quando estou VENDO o álbum de outra família
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+}
 
 function start() {
   if (started) return;
@@ -37,15 +44,15 @@ function start() {
   subscribe((id) => {
     const count = getCount(id);
     refreshSticker(id);
-    if (!ctx.albumId) return; // admin ainda sem família: não grava álbum
+    if (!ctx.albumId || readOnly) return; // sem família, ou vendo álbum de outro: não grava
     saveLocal(ctx.albumId, allCounts());
     queueRemote(ctx.albumId, { email: ctx.email, displayName: ctx.displayName }, id, count);
   });
 
   // 3) Interações nas bolinhas (toque = +1, segurar 3s = -1).
   setupInteractions(document.getElementById('album'), {
-    onTap: (id) => tap(id),
-    onLongPress: (id) => longPress(id),
+    onTap: (id) => { if (!readOnly) tap(id); },
+    onLongPress: (id) => { if (!readOnly) longPress(id); },
   });
 
   // 4) Abas (recalculam as views dinâmicas ao abrir).
@@ -58,6 +65,7 @@ function start() {
   });
 
   setupExport({ displayName: ctx.displayName });
+  setupAlbumSwitcher();
 
   // 5) Reconcilia com o Firestore (fonte da verdade quando online).
   // Carrega o álbum (compartilhado). Se estiver vazio, migra UMA vez do álbum
@@ -87,6 +95,50 @@ function start() {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') flushOnLeave();
   });
+}
+
+// Seletor "ver álbum de outra família" (só leitura) na aba Todas.
+function setupAlbumSwitcher() {
+  const switcher = document.getElementById('album-switcher');
+  const select = document.getElementById('album-select');
+  const families = (ctx.config && ctx.config.families) || {};
+  const ids = Object.keys(families);
+  if (!switcher || !select) return;
+  if (ids.length <= 1) { switcher.hidden = true; return; } // só tem a minha família
+
+  const opts = [];
+  if (ctx.albumId && families[ctx.albumId]) {
+    opts.push(`<option value="${esc(ctx.albumId)}">${esc(families[ctx.albumId])} (minha)</option>`);
+  }
+  for (const id of ids) {
+    if (id === ctx.albumId) continue;
+    opts.push(`<option value="${esc(id)}">${esc(families[id])}</option>`);
+  }
+  select.innerHTML = opts.join('');
+  select.value = ctx.albumId || ids[0];
+  switcher.hidden = false;
+  select.addEventListener('change', () => viewAlbum(select.value));
+}
+
+async function viewAlbum(targetId) {
+  const hintBar = document.getElementById('hint-bar');
+  const banner = document.getElementById('readonly-banner');
+  const families = (ctx.config && ctx.config.families) || {};
+  if (targetId === ctx.albumId) {
+    readOnly = false;
+    refreshAll(); // volta pro meu álbum (a partir do estado)
+    if (hintBar) hintBar.hidden = false;
+    if (banner) banner.hidden = true;
+  } else {
+    readOnly = true;
+    if (hintBar) hintBar.hidden = true;
+    if (banner) {
+      banner.textContent = `👀 Vendo o álbum da ${families[targetId] || 'outra família'} — somente leitura`;
+      banner.hidden = false;
+    }
+    const res = await loadRemote(targetId);
+    displayCounts(res.counts || {});
+  }
 }
 
 setupAuthGate({

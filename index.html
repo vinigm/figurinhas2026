@@ -55,9 +55,14 @@
     <main id="main" class="main">
       <!-- Todas -->
       <section class="view" data-view="todas">
-        <div class="hint-bar">
+        <div id="album-switcher" class="album-switcher" hidden>
+          <span>👀 Ver álbum:</span>
+          <select id="album-select"></select>
+        </div>
+        <div class="hint-bar" id="hint-bar">
           Toque pra marcar · toque de novo conta repetidas · <b>segure 3s</b> pra desfazer.
         </div>
+        <div id="readonly-banner" class="readonly-banner" hidden></div>
         <div id="index" class="index"></div>
         <div id="album" class="album"></div>
       </section>
