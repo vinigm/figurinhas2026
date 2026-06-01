@@ -61,16 +61,22 @@ function listHtml(predicate, withExtra) {
 }
 
 function buildReport(mode, displayName) {
-  const titles = { completo: 'Álbum completo', faltam: 'Figurinhas que faltam', repetidas: 'Figurinhas repetidas' };
+  const titles = { completo: 'Álbum completo', faltam: 'Figurinhas que faltam', repetidas: 'Figurinhas repetidas', troca: 'Pra trocar' };
   // Cabeçalho visível (h1) — separado do título do arquivo/aba.
   const headings = {
     completo: '⚽ Álbum completo',
     faltam: '🙋 Se você tiver essas figurinhas EU QUERO!',
     repetidas: '🔁 Essas aqui são minhas figurinhas repetidas que eu posso trocar com vc!',
+    troca: '🔄 Bora trocar figurinhas?',
   };
   let body;
   if (mode === 'faltam') body = listHtml((c) => c === 0, false);
   else if (mode === 'repetidas') body = listHtml((c) => c >= 2, true);
+  else if (mode === 'troca') body = `
+    <h2 class="section-banner need">🙋 Essas eu preciso</h2>
+    ${listHtml((c) => c === 0, false)}
+    <h2 class="section-banner trade">🔁 Essas eu tenho pra trocar</h2>
+    ${listHtml((c) => c >= 2, true)}`;
   else body = fullHtml();
 
   return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
@@ -97,6 +103,9 @@ function buildReport(mode, displayName) {
             font-style: normal; font-size: 9px; min-width: 14px; height: 14px; border-radius: 8px;
             display: flex; align-items: center; justify-content: center; padding: 0 2px; }
   .empty { color: #888; }
+  .section-banner { margin: 26px 0 12px; padding: 9px 14px; border-radius: 10px; font-size: 17px; font-weight: 800; }
+  .section-banner.need { background: #eef2ff; color: #3730a3; border-left: 5px solid #6366f1; }
+  .section-banner.trade { background: #fef3c7; color: #92400e; border-left: 5px solid #f59e0b; }
   .legend { font-size: 12px; color: #666; margin: 0 0 16px; display: flex; gap: 14px; flex-wrap: wrap; }
   .print-btn { position: fixed; top: 16px; right: 16px; background: #6d28d9; color: #fff; border: 0;
                padding: 10px 16px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 14px; }
