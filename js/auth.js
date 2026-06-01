@@ -12,6 +12,7 @@ import { auth, googleProvider } from './firebase-config.js';
 // 👇 Adicione aqui os e-mails dos amigos que poderão usar o app.
 export const AUTHORIZED_EMAILS = [
   'vinigm@gmail.com',
+  'victoria.cerutti@gmail.com',
   // 'amigo@gmail.com',
 ];
 

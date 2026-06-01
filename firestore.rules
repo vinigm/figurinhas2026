@@ -11,7 +11,8 @@ service cloud.firestore {
     function isWhitelisted() {
       return request.auth != null
         && request.auth.token.email.lower() in [
-          'vinigm@gmail.com'
+          'vinigm@gmail.com',
+          'victoria.cerutti@gmail.com'
           // , 'amigo@gmail.com'
         ];
     }
