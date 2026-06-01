@@ -34,7 +34,7 @@ service cloud.firestore {
     // Álbuns: todo cadastrado lê qualquer um; cada um escreve só no da sua família.
     match /albums/{albumId} {
       allow read: if isMember();
-      allow write: if isMember() && myAlbum() == albumId;
+      allow write: if (isMember() && myAlbum() == albumId) || isAdmin();
       // Transitório (migração antiga): ler o próprio álbum pessoal por uid.
       allow read: if request.auth != null && albumId == request.auth.uid;
     }

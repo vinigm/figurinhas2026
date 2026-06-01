@@ -3,6 +3,8 @@
 
 import { saveConfig } from './config.js';
 import { ADMIN_EMAIL } from './auth.js';
+import { parseList, computeOwned } from './import-utils.js';
+import { setAlbumStickers } from './storage.js';
 
 function esc(s) {
   return String(s).replace(/[&<>"']/g, (c) => (
@@ -77,6 +79,18 @@ export function renderAdmin(container, config, onChanged) {
           <select id="adm-mem-fam">${familyOptions || '<option value="">(crie uma família primeiro)</option>'}</select>
           <button id="adm-mem-add" class="btn-ghost">Adicionar</button>
         </div>
+      </div>
+      <div class="admin-box">
+        <h3>📥 Importar coleção</h3>
+        <p class="hint">Cole a lista (ex: <code>MEX 8 17 20</code> por linha; <code>FWC 6</code> pras especiais) pra marcar tudo de uma vez no álbum da família. Marca como "tenho" — repetidas a pessoa adiciona depois.</p>
+        <select id="adm-imp-fam">${familyOptions || '<option value="">(crie uma família primeiro)</option>'}</select>
+        <div class="imp-modes">
+          <label><input type="radio" name="impmode" value="falto" checked> A lista é o que <b>me falta</b> (marca todas as outras)</label>
+          <label><input type="radio" name="impmode" value="tenho"> A lista é o que <b>eu tenho</b></label>
+        </div>
+        <textarea id="adm-imp-text" rows="6" placeholder="FWC 6&#10;MEX 8 17 20&#10;RSA 1 12 15&#10;..."></textarea>
+        <button id="adm-imp-go" class="btn-ghost">Importar pra família selecionada</button>
+        <div id="adm-imp-result" class="imp-result" hidden></div>
       </div>`;
 
     container.querySelectorAll('[data-remove]').forEach((b) =>
@@ -98,6 +112,33 @@ export function renderAdmin(container, config, onChanged) {
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { alert('E-mail inválido.'); return; }
       cfg.members[email] = fam;
       persist();
+    });
+
+    container.querySelector('#adm-imp-go')?.addEventListener('click', async () => {
+      const fam = container.querySelector('#adm-imp-fam').value;
+      const text = container.querySelector('#adm-imp-text').value;
+      const mode = container.querySelector('input[name="impmode"]:checked')?.value || 'falto';
+      const resultEl = container.querySelector('#adm-imp-result');
+      if (!fam) { alert('Escolha uma família.'); return; }
+      const { listed, warnings } = parseList(text);
+      if (listed.size === 0) { alert('Não reconheci nenhuma figurinha. Confira o formato (ex: MEX 8 17 20).'); return; }
+      const owned = computeOwned(listed, mode);
+      const n = Object.keys(owned).length;
+      const famName = cfg.families[fam] || fam;
+      const msg = mode === 'falto'
+        ? `Vai marcar ${n} figurinhas como "tem" no álbum "${famName}" (tudo menos as ${listed.size} da lista). Continuar?`
+        : `Vai marcar ${n} figurinhas como "tem" no álbum "${famName}". Continuar?`;
+      if (!confirm(msg)) return;
+      try {
+        await setAlbumStickers(fam, owned, ADMIN_EMAIL);
+        if (resultEl) {
+          resultEl.hidden = false;
+          resultEl.innerHTML = `✓ Pronto: <b>${n}</b> figurinhas marcadas em "${esc(famName)}".`
+            + (warnings.length ? `<br><span class="imp-warn">⚠️ ${warnings.length} aviso(s): ${esc(warnings.slice(0, 4).join(' · '))}${warnings.length > 4 ? '…' : ''}</span>` : '');
+        }
+      } catch (e) {
+        alert('Erro ao importar: ' + (e?.message || e));
+      }
     });
   }
 

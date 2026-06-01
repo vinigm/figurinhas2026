@@ -88,3 +88,12 @@ export function flushNow() {
   if (timer) { clearTimeout(timer); timer = null; }
   return flush();
 }
+
+// Importação (admin): define o mapa de figurinhas de um álbum de uma vez.
+export async function setAlbumStickers(albumId, stickersMap, byEmail) {
+  await setDoc(doc(db, 'albums', albumId), {
+    stickers: stickersMap,
+    updatedAt: serverTimestamp(),
+    importedBy: byEmail || '',
+  }, { merge: true });
+}
