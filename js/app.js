@@ -3,7 +3,7 @@
 import { setupAuthGate } from './auth.js';
 import { initCounts, tap, longPress, subscribe, allCounts, getCount } from './state.js';
 import { readLocal, saveLocal, loadRemote, queueRemote, flushNow } from './storage.js';
-import { renderIndex, renderAlbum, refreshSticker, refreshAll, displayCounts } from './render.js';
+import { renderIndex, renderAlbum, refreshSticker, refreshAll, displayCounts, filterTopics } from './render.js';
 import { setupInteractions } from './interactions.js';
 import { setupTabs } from './tabs.js';
 import { renderMissing, renderDupes, renderStats } from './views.js';
@@ -66,6 +66,14 @@ function start() {
 
   setupExport({ displayName: ctx.displayName });
   setupAlbumSwitcher();
+
+  // Busca/filtro de país na aba Todas.
+  const search = document.getElementById('topic-search');
+  const searchEmpty = document.getElementById('search-empty');
+  if (search) search.addEventListener('input', () => {
+    const any = filterTopics(search.value);
+    if (searchEmpty) searchEmpty.hidden = any;
+  });
 
   // 5) Reconcilia com o Firestore (fonte da verdade quando online).
   // Carrega o álbum (compartilhado). Se estiver vazio, migra UMA vez do álbum

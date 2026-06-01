@@ -146,6 +146,28 @@ export function displayCounts(counts) {
   if (label) label.textContent = `${ownedG} / ${TOTAL} · ${pctG}%`;
 }
 
+function normalize(s) {
+  return (s || '').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+}
+
+// Filtra os tópicos (seções + chips do índice) pelo texto digitado: casa nome do
+// país, código (HAI), etc. — sem acento e sem caso. Retorna se sobrou algum.
+export function filterTopics(query) {
+  const q = normalize(query);
+  let anyShown = false;
+  for (const t of ALBUM) {
+    const hay = normalize(`${t.name} ${t.short} ${t.countryName || ''}`);
+    const match = !q || hay.includes(q);
+    if (match) anyShown = true;
+    const rec = topicEls.get(t.id);
+    if (rec) {
+      if (rec.section) rec.section.hidden = !match;
+      if (rec.chip) rec.chip.hidden = !match;
+    }
+  }
+  return anyShown;
+}
+
 export function updateTopicProgress(topicId) {
   const t = ALBUM.find((x) => x.id === topicId);
   const rec = topicEls.get(topicId);
