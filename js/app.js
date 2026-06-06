@@ -67,12 +67,20 @@ function start() {
   setupExport({ displayName: ctx.displayName });
   setupAlbumSwitcher();
 
-  // Busca/filtro de país na aba Todas.
+  // Busca/filtro de país na aba Todas (barra fixa + botão limpar).
   const search = document.getElementById('topic-search');
   const searchEmpty = document.getElementById('search-empty');
-  if (search) search.addEventListener('input', () => {
+  const searchClear = document.getElementById('search-clear');
+  function runFilter() {
     const any = filterTopics(search.value);
     if (searchEmpty) searchEmpty.hidden = any;
+    if (searchClear) searchClear.hidden = !search.value;
+  }
+  if (search) search.addEventListener('input', runFilter);
+  if (searchClear) searchClear.addEventListener('click', () => {
+    search.value = '';
+    runFilter();
+    search.focus();
   });
 
   // 5) Reconcilia com o Firestore (fonte da verdade quando online).

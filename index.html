@@ -63,7 +63,12 @@
           Toque pra marcar · toque de novo conta repetidas · <b>segure 3s</b> pra desfazer.
         </div>
         <div id="readonly-banner" class="readonly-banner" hidden></div>
-        <input id="topic-search" class="topic-search" type="search" placeholder="🔎 Filtrar país… (ex: Haiti, BRA)" autocomplete="off" />
+        <div class="search-sticky">
+          <div class="search-wrap">
+            <input id="topic-search" class="topic-search" type="text" placeholder="🔎 Filtrar país… (ex: Haiti, BRA)" autocomplete="off" />
+            <button id="search-clear" class="search-clear" type="button" aria-label="Limpar busca" hidden>×</button>
+          </div>
+        </div>
         <div id="index" class="index"></div>
         <div id="album" class="album"></div>
         <div id="search-empty" class="empty" hidden>Nenhum país encontrado. 🤔</div>
