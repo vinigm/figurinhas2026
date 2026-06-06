@@ -162,17 +162,8 @@ html.auth-hidden #app { display: none; }
 }
 .sticker.rep .dup { display: flex; }
 
-/* Anel de progresso do "segurar 3s" */
-@property --hold { syntax: '<percentage>'; inherits: false; initial-value: 0%; }
-.sticker.holding::before {
-  content: ''; position: absolute; inset: -5px; border-radius: 50%; z-index: 3; pointer-events: none;
-  background: conic-gradient(var(--gold) var(--hold), rgba(0, 0, 0, .08) 0);
-  -webkit-mask: radial-gradient(closest-side, transparent 72%, #000 74%);
-          mask: radial-gradient(closest-side, transparent 72%, #000 74%);
-  animation: holdfill 3s linear forwards;
-}
-@keyframes holdfill { from { --hold: 0%; } to { --hold: 100%; } }
-.sticker.holding { transform: scale(.92); }
+/* Feedback ao segurar (sem anel girando): só uma leve encolhida */
+.sticker.holding { transform: scale(.9); }
 
 /* ===== Views (faltam / repetidas / stats / exportar) ===== */
 .view-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 4px 0 14px; }

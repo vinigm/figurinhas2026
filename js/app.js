@@ -137,17 +137,14 @@ function setupAlbumSwitcher() {
 }
 
 async function viewAlbum(targetId) {
-  const hintBar = document.getElementById('hint-bar');
   const banner = document.getElementById('readonly-banner');
   const families = (ctx.config && ctx.config.families) || {};
   if (targetId === ctx.albumId) {
     readOnly = false;
     refreshAll(); // volta pro meu álbum (a partir do estado)
-    if (hintBar) hintBar.hidden = false;
     if (banner) banner.hidden = true;
   } else {
     readOnly = true;
-    if (hintBar) hintBar.hidden = true;
     if (banner) {
       banner.textContent = `👀 Vendo o álbum da ${families[targetId] || 'outra família'} — somente leitura`;
       banner.hidden = false;

@@ -1,7 +1,7 @@
-// Toque curto = +1 · Segurar 3s = -1 (uma repetida a menos / desmarca).
+// Toque curto = +1 · Segurar 1,5s = -1 (uma repetida a menos / desmarca).
 // Usa pointer events com delegação: um único listener cuida das 980 bolinhas.
 
-const HOLD_MS = 3000;
+const HOLD_MS = 1500;
 
 export function setupInteractions(container, { onTap, onLongPress }) {
   let activeEl = null;

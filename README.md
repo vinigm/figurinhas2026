@@ -7,7 +7,7 @@ instalável como **PWA** e com **exportação em PDF**.
 ## Como funciona
 - **Toque** numa bolinha → marca que você tem.
 - **Toque de novo** → conta repetidas (mostra 1, 2, … até 5).
-- **Segure 3 segundos** → tira uma repetida; segurando quando só tem 1, desmarca.
+- **Segure 1,5s** → tira uma repetida; segurando quando só tem 1, desmarca.
 - Abas: **Todas · Me faltam · Repetidas · Estatísticas · Exportar**.
 
 ## Estrutura
