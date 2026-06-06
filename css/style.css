@@ -179,6 +179,9 @@ html.auth-hidden #app { display: none; }
 .view-head h2 { margin: 0; font-size: 20px; }
 .count-pill { background: var(--accent); color: #fff; border-radius: 20px; padding: 2px 10px; font-size: 14px; }
 .btn-ghost { border: 1px solid var(--accent); background: var(--card); color: var(--accent); border-radius: 10px; padding: 8px 12px; font-weight: 700; font-size: 13px; cursor: pointer; }
+.view-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-danger { border: 1px solid var(--red); background: var(--card); color: var(--red); border-radius: 10px; padding: 8px 12px; font-weight: 700; font-size: 13px; cursor: pointer; }
+.btn-danger:active { background: #fef2f2; }
 .hint { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
 .empty { text-align: center; color: var(--muted); padding: 40px 20px; font-size: 15px; }
 

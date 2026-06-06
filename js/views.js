@@ -2,7 +2,7 @@
 
 import { ALBUM, TOTAL } from './album-data.js';
 import {
-  ownedCount, dupesCount, allCounts, missingByTopic, dupesByTopic, topicProgress,
+  ownedCount, dupesCount, allCounts, missingByTopic, dupesByTopic, topicProgress, setCount,
 } from './state.js';
 
 function esc(s) {
@@ -84,11 +84,24 @@ export function renderDupes(container, displayName) {
   container.innerHTML = `
     <div class="view-head">
       <h2>Repetidas <span class="count-pill">${total}</span></h2>
-      <button class="btn-ghost" data-copy>📋 Copiar lista</button>
+      <div class="view-actions">
+        <button class="btn-ghost" data-copy>📋 Copiar</button>
+        <button class="btn-danger" data-clear-dupes>🗑️ Zerar</button>
+      </div>
     </div>
-    <p class="hint">Use esta lista pra trocar com os amigos. ✌️</p>
+    <p class="hint">Use esta lista pra trocar. Trocou tudo? Toque em <b>Zerar</b> pra remover as extras — mantém 1 de cada no álbum. ✌️</p>
     ${htmlGroups}`;
   attachCopy(container, textLines.join('\n'));
+
+  container.querySelector('[data-clear-dupes]')?.addEventListener('click', () => {
+    const n = dupesCount();
+    if (n === 0) return;
+    if (!confirm(`Zerar ${n} repetida(s)?\n\nMantém 1 de cada figurinha no álbum — remove só as extras. Não dá pra desfazer.`)) return;
+    for (const g of dupesByTopic()) {
+      for (const d of g.dupes) setCount(d.id, 1); // volta de 2+ para 1
+    }
+    renderDupes(container, displayName); // re-renderiza (agora vazio)
+  });
 }
 
 // ---- Estatísticas ----

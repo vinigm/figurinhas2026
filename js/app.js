@@ -43,8 +43,8 @@ function start() {
   // 2) Reage a cada mudança: atualiza a bolinha, salva local e agenda no Firestore.
   subscribe((id) => {
     const count = getCount(id);
-    refreshSticker(id);
-    if (!ctx.albumId || readOnly) return; // sem família, ou vendo álbum de outro: não grava
+    if (!readOnly) refreshSticker(id); // o estado é sempre o MEU álbum; só atualizo o grid se estou vendo o meu
+    if (!ctx.albumId) return;
     saveLocal(ctx.albumId, allCounts());
     queueRemote(ctx.albumId, { email: ctx.email, displayName: ctx.displayName }, id, count);
   });
