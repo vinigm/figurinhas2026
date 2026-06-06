@@ -123,6 +123,7 @@ html.auth-hidden #app { display: none; }
 .topic.done .topic-head { background: #f0fdf4; }
 .topic-flag { font-size: 22px; flex: 0 0 auto; }
 .topic-name { font-weight: 800; font-size: 14.5px; flex: 1 1 auto; min-width: 0; }
+.topic-page { font-size: 11px; font-weight: 700; color: var(--accent); background: var(--accent-soft); padding: 1px 7px; border-radius: 8px; margin-left: 6px; white-space: nowrap; }
 .topic-prog { display: flex; align-items: center; gap: 7px; flex: 0 0 auto; }
 .topic-prog .bar { width: 54px; height: 7px; background: var(--accent-soft); border-radius: 4px; overflow: hidden; }
 .topic-prog .bar > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .3s; }

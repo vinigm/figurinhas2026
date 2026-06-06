@@ -60,7 +60,7 @@ export function renderAlbum(container) {
     head.setAttribute('aria-expanded', 'true');
     head.innerHTML = `
       <span class="topic-flag">${t.flag}</span>
-      <span class="topic-name">${t.name}</span>
+      <span class="topic-name">${t.name}${t.page ? ` <span class="topic-page">pág. ${t.page}</span>` : ''}</span>
       <span class="topic-prog"><span class="bar"><i></i></span><span class="frac"></span></span>
       <span class="chev" aria-hidden="true">▾</span>`;
     head.addEventListener('click', () => {
