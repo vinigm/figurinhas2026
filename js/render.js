@@ -152,19 +152,53 @@ function normalize(s) {
   return (s || '').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
 }
 
+// Tenta interpretar "TUN 15" / "tun15" / "tun-15" como (código, número).
+// Retorna { id: 'TUN15', topicId: 'TUN' } se casar com uma figurinha existente.
+export function parseStickerQuery(query) {
+  const m = normalize(query).match(/^([a-z]{2,4})\s*[-]?\s*(\d{1,3})$/);
+  if (!m) return null;
+  const code = m[1].toUpperCase();
+  const num = String(parseInt(m[2], 10));
+  const stickerId = `${code}${num}`; // ex: TUN15, FWC6
+  // Procura o tópico que REALMENTE contém esse sticker (FWC tem 3 tópicos).
+  for (const t of ALBUM) {
+    if (t.stickers.some((s) => s.id === stickerId)) {
+      return { id: stickerId, topicId: t.id };
+    }
+  }
+  return null;
+}
+
 // Filtra os tópicos (seções + chips do índice) pelo texto digitado: casa nome do
 // país, código (HAI), etc. — sem acento e sem caso. Retorna se sobrou algum.
+// Se for um padrão "CODIGO NUMERO" (ex: "TUN 15"), também destaca essa bolinha
+// e rola até ela.
 export function filterTopics(query) {
+  // Limpa destaque anterior.
+  document.querySelectorAll('.sticker.hl').forEach((el) => el.classList.remove('hl'));
+
+  const target = parseStickerQuery(query);
   const q = normalize(query);
   let anyShown = false;
   for (const t of ALBUM) {
-    const hay = normalize(`${t.name} ${t.short} ${t.countryName || ''}`);
-    const match = !q || hay.includes(q);
+    let match;
+    if (target) match = (t.id === target.topicId);
+    else {
+      const hay = normalize(`${t.name} ${t.short} ${t.countryName || ''}`);
+      match = !q || hay.includes(q);
+    }
     if (match) anyShown = true;
     const rec = topicEls.get(t.id);
     if (rec) {
       if (rec.section) rec.section.hidden = !match;
       if (rec.chip) rec.chip.hidden = !match;
+    }
+  }
+  if (target) {
+    const el = stickerEls.get(target.id);
+    if (el) {
+      el.classList.add('hl');
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }
   return anyShown;
