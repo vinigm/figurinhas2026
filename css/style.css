@@ -11,7 +11,7 @@
   --green: #16a34a;
   --red: #ef4444;
   --line: #e9e6f5;
-  --sz: 46px;
+  --sz: 42px;
   --topbar-h: 96px;
 }
 
@@ -139,13 +139,13 @@ html.auth-hidden #app { display: none; }
 .topic.collapsed .chev { transform: rotate(-90deg); }
 .topic.collapsed .grid { display: none; }
 
-.grid { display: grid; grid-template-columns: repeat(auto-fill, var(--sz)); justify-content: center; gap: 8px; padding: 4px 12px 16px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, var(--sz)); justify-content: center; gap: 6px; padding: 4px 8px 14px; }
 
 /* ===== Bolinha (sticker) ===== */
 .sticker {
   position: relative; width: var(--sz); height: var(--sz); border-radius: 50%;
   border: 2px solid var(--line); background: var(--card); color: #c2bed8;
-  font-weight: 800; font-size: 14px; cursor: pointer; padding: 0;
+  font-weight: 800; font-size: 13px; cursor: pointer; padding: 0;
   display: grid; place-items: center; user-select: none; -webkit-user-select: none;
   -webkit-touch-callout: none; touch-action: pan-y;
   transition: transform .06s, background .15s, border-color .15s, color .15s;
@@ -156,9 +156,9 @@ html.auth-hidden #app { display: none; }
 .sticker:active { transform: scale(.9); }
 
 .dup {
-  position: absolute; top: -4px; right: -4px; min-width: 18px; height: 18px; padding: 0 3px;
-  border-radius: 9px; background: var(--red); color: #fff; font-size: 10px; font-weight: 800;
-  display: none; align-items: center; justify-content: center; border: 2px solid var(--card); pointer-events: none;
+  position: absolute; top: -3px; right: -3px; min-width: 16px; height: 16px; padding: 0 3px;
+  border-radius: 8px; background: var(--red); color: #fff; font-size: 9px; font-weight: 800;
+  display: none; align-items: center; justify-content: center; border: 1.5px solid var(--card); pointer-events: none;
 }
 .sticker.rep .dup { display: flex; }
 
@@ -283,7 +283,7 @@ html.auth-hidden #app { display: none; }
   .stat-cards { grid-template-columns: repeat(4, 1fr); }
   .stat-card.big { grid-column: 1 / -1; }
   .main { padding: 16px 20px 48px; }
-  :root { --sz: 50px; }
+  :root { --sz: 46px; }
 }
 @media (min-width: 900px) {
   #app { max-width: 1100px; margin: 0 auto; box-shadow: 0 0 40px rgba(0, 0, 0, .06); }
