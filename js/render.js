@@ -23,7 +23,9 @@ function applyVisual(el, count) {
 }
 
 // --- Índice de atalho (chips que rolam até o tópico) ---
+// Aceita container null (caso o índice tenha sido removido do HTML) — vira no-op.
 export function renderIndex(container) {
+  if (!container) return;
   container.innerHTML = '';
   const frag = document.createDocumentFragment();
   for (const t of ALBUM) {

@@ -109,16 +109,6 @@ html.auth-hidden #app { display: none; }
 .search-clear:active { background: #d9d5ec; }
 @media (min-width: 640px) { .search-sticky { margin: 0 -20px 10px; padding: 10px 20px; } }
 
-/* ===== Índice de atalho (chips) ===== */
-.index { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
-.chip {
-  display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line); background: var(--card);
-  color: var(--ink); border-radius: 20px; padding: 5px 11px; font-size: 12.5px; font-weight: 700; cursor: pointer;
-}
-.chip-flag { font-size: 14px; }
-.chip.done { background: #dcfce7; border-color: #86efac; color: var(--green); }
-.chip:active { transform: scale(.96); }
-
 /* ===== Tópicos ===== */
 .topic { background: var(--card); border: 1px solid var(--line); border-radius: 16px; margin-bottom: 12px; overflow: hidden; scroll-margin-top: 8px; }
 .topic.done { border-color: #86efac; }
